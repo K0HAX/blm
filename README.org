@@ -1,0 +1,4 @@
+BLM - Book Library Manager
+
+* This is the README for my Book organization database program.
+  - You probably shouldn't use this in production, it has basically no design.
