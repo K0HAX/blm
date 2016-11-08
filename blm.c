@@ -21,16 +21,18 @@ typedef struct Book
   char genre[255];
 };
 
+sqlite3 *db;
+sqlite3_stmt *res;
+int rc;
+
 int main(void)
 {
   int i, choice;
   char oname[100];
   struct Book * book;
   char c;
-  sqlite3 *db;
-  sqlite3_stmt *res;
 
-  int rc = sqlite3_open(":memory:", &db);
+  rc = sqlite3_open("books.db", &db);
 
   if (rc != SQLITE_OK) {
       fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
@@ -38,26 +40,37 @@ int main(void)
       return 1;
   }
 
-  rc = sqlite3_prepare_v2(db, "SELECT SQLITE_VERSION()", -1, &res, 0);
-
-  if (rc != SQLITE_OK) {
-      fprintf(stderr, "Failed to fetch data: %s\n", sqlite3_errmsg(db));
-      sqlite3_close(db);
-
-      return 1;
-  }
-
-  rc = sqlite3_step(res);
-
-  if (rc == SQLITE_ROW) {
-      printf("%s\n", sqlite3_column_text(res, 0));
-  }
+  ListBooks();
 
   sqlite3_finalize(res);
   sqlite3_close(db);
 
   return 0;
 }
+
+int ListBooks() {
+    char *sql = "SELECT Name, Author, Price, Category, Genre FROM Books";
+    rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
+
+    if (rc == SQLITE_OK) {
+        sqlite3_bind_int(res, 1, 3);
+    } else {
+        fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+    }
+
+    int step = sqlite3_step(res);
+
+    if (step == SQLITE_ROW) {
+        printf("Name: %s\n", sqlite3_column_text(res, 0));
+        printf("Author: %s\n", sqlite3_column_text(res, 1));
+        printf("Price: %f\n", sqlite3_column_double(res, 2));
+        printf("Category: %s\n", sqlite3_column_text(res, 3));
+        printf("Genre: %s\n", sqlite3_column_text(res, 4));
+    }
+
+    return 0;
+}
+
 
 int CreateBook(struct Book* book, FILE *fp1) {
   int booksize;
