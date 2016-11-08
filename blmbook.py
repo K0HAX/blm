@@ -20,14 +20,22 @@ def make_book(name, author_first, author_last, price, category):
     book = Book(name, author_first, author_last, price, category)
     return book
 
-def add_book(name, author_first, author_last, price, category):
+def append_book(con, books, name, author_first, author_last, price, category):
     mbook = make_book(name, author_first, author_last, price, category)
-    books.append(mbook)
+    with con:
+        cur = con.cursor()
+        cur.execute("INSERT INTO Books (Name, Author_First, Author_Last, Price, Category) VALUES (?, ?, ?, ?, ?)",
+                    (name,
+                    author_first,
+                    author_last,
+                    price,
+                    category))
+        con.commit()
 
 def get_books(con, books):
     with con:
         cur = con.cursor()
-        cur.execute("SELECT Name, Author_First, Author_Last, Price, Category FROM Books ORDER BY Author_Last")
+        cur.execute("SELECT Name, Author_First, Author_Last, Price, Category FROM Books ORDER BY Category, Author_Last, Author_First, Name")
 
         rows = cur.fetchall()
         for row in rows:
