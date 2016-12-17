@@ -8,16 +8,21 @@ con = sqlite3.connect('books.db')
 
 books = []
 menu_actions = {}
+book_total = 0.00
 
 ### Book Section ###
 
 def list_books():
+    global book_total
     for mbook in books:
         print "Name: %s" % mbook.Name
         print "Author: %s %s" % (mbook.Author_First, mbook.Author_Last)
-        print "Price: %.2f" % mbook.Price
+        print "Price: $%.2f" % mbook.Price
+        book_total = book_total + mbook.Price
         print "Category: %s" % mbook.Category
         print ""
+    print "Total Value: $%.2f" % book_total
+    print ""
 
 def add_book():
     global books
@@ -65,6 +70,8 @@ def menu1():
     menu_actions['main_menu']()
 
 def menu2():
+    global book_total
+    book_total = 0.00
     print "Listing Books!\n"
     list_books()
     raw_input("Press enter to return")
